@@ -22,8 +22,9 @@ class TaskTrackerGUI(ctk.CTk):  # type: ignore[misc]
         super().__init__()
 
         self.title("Система управления задачами (Task Tracker GUI)")
-        self.geometry("1450x780")
-        self.minsize(1350, 600)
+        # 🔥 УМЕНЬШИЛИ ВЫСОТУ ДО 620px: Окно гарантированно влезет на любой монитор!
+        self.geometry("1450x620")
+        self.minsize(1350, 550)
 
         # --- ЛЕВАЯ ПАНЕЛЬ ---
         self.left_panel = ctk.CTkFrame(self, width=410, corner_radius=0)
@@ -31,98 +32,98 @@ class TaskTrackerGUI(ctk.CTk):  # type: ignore[misc]
         self.left_panel.pack_propagate(False)
 
         self.lbl_title = ctk.CTkLabel(self.left_panel, text="Панель управления", font=ctk.CTkFont(size=18, weight="bold"))
-        self.lbl_title.pack(padx=20, pady=10)
+        self.lbl_title.pack(padx=20, pady=8)
 
         # Форма пользователя
         self.user_frame = ctk.CTkFrame(self.left_panel)
-        self.user_frame.pack(padx=15, pady=5, fill="x")
+        self.user_frame.pack(padx=15, pady=3, fill="x")
 
         self.lbl_user_form = ctk.CTkLabel(self.user_frame, text="Новый исполнитель", font=ctk.CTkFont(weight="bold"))
-        self.lbl_user_form.pack(padx=10, pady=2)
+        self.lbl_user_form.pack(padx=10, pady=1)
 
-        self.entry_user_name = ctk.CTkEntry(self.user_frame, placeholder_text="ФИО сотрудника")
-        self.entry_user_name.pack(padx=10, pady=3, fill="x")
+        self.entry_user_name = ctk.CTkEntry(self.user_frame, placeholder_text="ФИО сотрудника", height=24)
+        self.entry_user_name.pack(padx=10, pady=2, fill="x")
 
-        self.entry_user_role = ctk.CTkEntry(self.user_frame, placeholder_text="Роль (Разработчик, Тестировщик)")
-        self.entry_user_role.pack(padx=10, pady=3, fill="x")
+        self.entry_user_role = ctk.CTkEntry(self.user_frame, placeholder_text="Роль (Разработчик, Тестировщик)", height=24)
+        self.entry_user_role.pack(padx=10, pady=2, fill="x")
 
-        self.btn_add_user = ctk.CTkButton(self.user_frame, text="Создать пользователя", fg_color="purple", hover_color="indigo", command=self.add_user)
-        self.btn_add_user.pack(padx=10, pady=6, fill="x")
+        self.btn_add_user = ctk.CTkButton(self.user_frame, text="Создать пользователя", fg_color="purple", hover_color="indigo", height=24, command=self.add_user)
+        self.btn_add_user.pack(padx=10, pady=4, fill="x")
 
         # Форма задачи
         self.form_frame = ctk.CTkFrame(self.left_panel)
-        self.form_frame.pack(padx=15, pady=5, fill="x")
+        self.form_frame.pack(padx=15, pady=3, fill="x")
 
         self.lbl_form = ctk.CTkLabel(self.form_frame, text="Новая задача", font=ctk.CTkFont(weight="bold"))
-        self.lbl_form.pack(padx=10, pady=2)
+        self.lbl_form.pack(padx=10, pady=1)
 
-        self.entry_task_title = ctk.CTkEntry(self.form_frame, placeholder_text="Название задачи")
-        self.entry_task_title.pack(padx=10, pady=3, fill="x")
+        self.entry_task_title = ctk.CTkEntry(self.form_frame, placeholder_text="Название задачи", height=24)
+        self.entry_task_title.pack(padx=10, pady=2, fill="x")
 
-        self.combo_priority = ctk.CTkComboBox(self.form_frame, values=[p.value for p in TaskPriority])
+        self.combo_priority = ctk.CTkComboBox(self.form_frame, values=[p.value for p in TaskPriority], height=24)
         self.combo_priority.set(TaskPriority.LOW.value)
-        self.combo_priority.pack(padx=10, pady=3, fill="x")
+        self.combo_priority.pack(padx=10, pady=2, fill="x")
 
-        self.combo_task_assignee = ctk.CTkComboBox(self.form_frame, values=["Не назначен"])
+        self.combo_task_assignee = ctk.CTkComboBox(self.form_frame, values=["Не назначен"], height=24)
         self.combo_task_assignee.set("Не назначен")
-        self.combo_task_assignee.pack(padx=10, pady=3, fill="x")
+        self.combo_task_assignee.pack(padx=10, pady=2, fill="x")
 
-        self.entry_deadline = ctk.CTkEntry(self.form_frame, placeholder_text="Дедлайн (ГГГГ-ММ-ДД)")
+        self.entry_deadline = ctk.CTkEntry(self.form_frame, placeholder_text="Дедлайн (ГГГГ-ММ-ДД)", height=24)
         self.entry_deadline.insert(0, datetime.now().strftime("%Y-%m-%d"))
-        self.entry_deadline.pack(padx=10, pady=3, fill="x")
+        self.entry_deadline.pack(padx=10, pady=2, fill="x")
 
-        self.btn_add_task = ctk.CTkButton(self.form_frame, text="Добавить в бэклог", command=self.add_task)
-        self.btn_add_task.pack(padx=10, pady=8, fill="x")
+        self.btn_add_task = ctk.CTkButton(self.form_frame, text="Добавить в бэклог", height=24, command=self.add_task)
+        self.btn_add_task.pack(padx=10, pady=4, fill="x")
 
         # Форма отчетов
         self.report_frame = ctk.CTkFrame(self.left_panel)
-        self.report_frame.pack(padx=15, pady=5, fill="x")
-
-        self.lbl_report = ctk.CTkLabel(self.report_frame, text="Параметры еженедельного отчета", font=ctk.CTkFont(weight="bold"))
-        self.lbl_report.pack(padx=10, pady=2)
+        self.report_frame.pack(padx=15, pady=3, fill="x")
 
         self.dates_frame = ctk.CTkFrame(self.report_frame, fg_color="transparent")
-        self.dates_frame.pack(fill="x", padx=10, pady=3)
+        self.dates_frame.pack(fill="x", padx=10, pady=2)
 
         current_year, current_week, _ = datetime.now().isocalendar()
 
-        self.entry_report_year = ctk.CTkEntry(self.dates_frame, placeholder_text="Год", width=80)
+        self.entry_report_year = ctk.CTkEntry(self.dates_frame, placeholder_text="Год", width=80, height=24)
         self.entry_report_year.insert(0, str(current_year))
         self.entry_report_year.pack(side="left", padx=(0, 10))
 
-        self.entry_report_week = ctk.CTkEntry(self.dates_frame, placeholder_text="Неделя", width=80)
+        self.entry_report_week = ctk.CTkEntry(self.dates_frame, placeholder_text="Неделя", width=80, height=24)
         self.entry_report_week.insert(0, str(current_week))
         self.entry_report_week.pack(side="left")
 
-        self.btn_report_week = ctk.CTkButton(self.report_frame, text="Выгрузить неделю по выбору", fg_color="#1f538d", hover_color="#14375e", command=self.export_weekly_excel)
-        self.btn_report_week.pack(padx=10, pady=4, fill="x")
+        # Кнопки в один ряд для экономии места
+        self.buttons_report_frame = ctk.CTkFrame(self.report_frame, fg_color="transparent")
+        self.buttons_report_frame.pack(fill="x", padx=10, pady=2)
 
-        self.btn_report_all = ctk.CTkButton(self.report_frame, text="Выгрузить ВСЕ задачи базы", fg_color="green", hover_color="darkgreen", command=self.export_all_excel)
-        self.btn_report_all.pack(padx=10, pady=4, fill="x")
+        self.btn_report_week = ctk.CTkButton(self.buttons_report_frame, text="Выгрузить неделю", fg_color="#1f538d", hover_color="#14375e", height=24, width=180, command=self.export_weekly_excel)
+        self.btn_report_week.pack(side="left", padx=(0, 10))
 
-        # Текстовая таблица пользователей
+        self.btn_report_all = ctk.CTkButton(self.buttons_report_frame, text="Выгрузить все задачи", fg_color="green", hover_color="darkgreen", height=24, width=180, command=self.export_all_excel)
+        self.btn_report_all.pack(side="left")
+
+        # Список пользователей (Зажали высоту до 120px + включили скроллбар)
         self.users_list_frame = ctk.CTkFrame(self.left_panel)
-        self.users_list_frame.pack(padx=15, pady=5, fill="both", expand=True)
+        self.users_list_frame.pack(padx=15, pady=3, fill="x")
 
         self.lbl_users_list = ctk.CTkLabel(self.users_list_frame, text="Список исполнителей в БД", font=ctk.CTkFont(weight="bold"))
-        self.lbl_users_list.pack(padx=10, pady=2)
+        self.lbl_users_list.pack(padx=10, pady=1)
 
-        self.txt_users_table = ctk.CTkTextbox(self.users_list_frame, font=ctk.CTkFont(family="Courier", size=11), wrap="none", activate_scrollbars=True)
-        self.txt_users_table.pack(padx=10, pady=5, fill="both", expand=True)
+        # 🔥 КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Жесткая высота 120 пикселей. Автоматический скролл!
+        self.txt_users_table = ctk.CTkTextbox(self.users_list_frame, font=ctk.CTkFont(family="Courier", size=11), height=120, wrap="none", activate_scrollbars=True)
+        self.txt_users_table.pack(padx=10, pady=3, fill="x")
         self.txt_users_table.configure(state="disabled")
 
         # --- ПРАВАЯ ПАНЕЛЬ ---
         self.right_panel = ctk.CTkFrame(self)
         self.right_panel.pack(side="right", fill="both", expand=True, padx=15, pady=15)
 
-        # Контейнер для строки заголовка бэклога и нового Чекбокса (в одну строчку)
         self.top_backlog_frame = ctk.CTkFrame(self.right_panel, fg_color="transparent")
-        self.top_backlog_frame.pack(fill="x", padx=10, pady=10)
+        self.top_backlog_frame.pack(fill="x", padx=10, pady=5)
 
         self.lbl_backlog = ctk.CTkLabel(self.top_backlog_frame, text="Текущий Бэклог (Сортировка по приоритету)", font=ctk.CTkFont(size=16, weight="bold"))
         self.lbl_backlog.pack(side="left", anchor="w")
 
-        # 🔥 ДОРАБОТКА: Интерактивный чекбокс скрытия выполненных задач
         self.check_hide_done = ctk.CTkCheckBox(self.top_backlog_frame, text="Скрыть завершенные (Done)", font=ctk.CTkFont(size=12), command=self.refresh_backlog_view)
         self.check_hide_done.pack(side="right", anchor="e", padx=15)
 
@@ -153,8 +154,16 @@ class TaskTrackerGUI(ctk.CTk):  # type: ignore[misc]
         self.scrollable_frame = ctk.CTkScrollableFrame(self.right_panel)
         self.scrollable_frame.pack(fill="both", expand=True, padx=10, pady=5)
 
-        self.lbl_status_msg = ctk.CTkLabel(self.left_panel, text="Система готова", text_color="gray")
-        self.lbl_status_msg.pack(side="bottom", padx=20, pady=5)
+        # 🔥 ДОРАБОТКА: Включили автоматический перенос текста статус-бара по словам!
+        self.lbl_status_msg = ctk.CTkLabel(
+            self.left_panel,
+            text="Система готова",
+            text_color="gray",
+            font=ctk.CTkFont(weight="bold"),
+            wraplength=350
+        )
+        self.lbl_status_msg.pack(side="bottom", fill="x", padx=20, pady=10)
+
 
         self.refresh_backlog_view()
         self.refresh_users_view()
@@ -190,7 +199,7 @@ class TaskTrackerGUI(ctk.CTk):  # type: ignore[misc]
         session.close()
 
     def refresh_backlog_view(self) -> None:
-        """Перерисовка бэклога с фильтрацией выполненных задач по чекбоксу и сеткой границ."""
+        """Перерисовка бэклога с многострочным переносом названий задач и вертикальной сеткой границ."""
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
 
@@ -202,12 +211,9 @@ class TaskTrackerGUI(ctk.CTk):  # type: ignore[misc]
         tasks = sorted(tasks, key=lambda t: (t.priority, -t.deadline.timestamp()), reverse=True)
 
         now_date = datetime.now(UTC).replace(tzinfo=None)
-
-        # Считываем состояние чекбокса (1 — включен, 0 — выключен)
         hide_done = self.check_hide_done.get() == 1
 
         for task in tasks:
-            # 🔥 ДОРАБОТКА: если флажок нажат и задача завершена, просто пропускаем её
             if hide_done and task.status == TaskStatus.DONE:
                 continue
 
@@ -242,7 +248,7 @@ class TaskTrackerGUI(ctk.CTk):  # type: ignore[misc]
             lbl_id.pack(side="left", padx=(10, 0), pady=10)
             ctk.CTkFrame(task_frame, width=1, fg_color="#444444").pack(side="left", padx=5, fill="y", pady=4)
 
-            # --- ЗАГОЛОВОК ---
+            # --- ЗАГОЛОВОК С ПЕРЕНОСОМ СЛОВ ---
             txt_title = ctk.CTkTextbox(
                 task_frame,
                 width=165,
@@ -344,7 +350,7 @@ class TaskTrackerGUI(ctk.CTk):  # type: ignore[misc]
             self.refresh_backlog_view()
 
     def on_status_combobox_change(self, task_id: int, selected_value: str) -> None:
-        """Обработчик изменения статуса задачи."""
+        """Обработчик изменения статуса задачи с жесткой валидацией assignee_id."""
         session = SessionLocal()
         task = session.get(Task, task_id)
         if not task:
@@ -366,16 +372,15 @@ class TaskTrackerGUI(ctk.CTk):  # type: ignore[misc]
             return
 
         try:
+            # 🔥 ОБНОВЛЕННАЯ ЛОГИКА: жесткая блокировка в UI без автоназначений
             if target_status == TaskStatus.IN_PROGRESS and not task.assignee_id:
-                first_user = session.query(User).first()
-                if not first_user:
-                    self.show_msg("Ошибка: Сначала создайте исполнителя!", "red")
-                    self.refresh_backlog_view()
-                    session.close()
-                    return
-                task.assignee_id = first_user.id
+                self.show_msg("Запрещено: Нельзя перевести в In Progress без исполнителя!", "red")
+                session.close()
+                self.refresh_backlog_view()  # Сбрасываем выбранное значение обратно
+                return
 
             old_status = task.status
+            # Вызов строгой валидации конечного автомата из ядра models.py
             task.move_to_status(target_status)
 
             log = TaskLog(task_id=task.id, old_status=old_status, new_status=target_status)
