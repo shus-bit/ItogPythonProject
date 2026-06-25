@@ -265,13 +265,16 @@ class TaskTrackerGUI(ctk.CTk):  # type: ignore[misc]
             ctk.CTkFrame(task_frame, width=1, fg_color="#444444").pack(side="left", padx=5, fill="y", pady=4)
 
             # --- ВЫПАДАЮЩИЙ СПИСОК ИСПОЛНИТЕЛЕЙ ---
+            # Было: command=lambda val, t_id=task.id: self.on_user_combobox_change(t_id, val)
+            # Стало (Явное и безопасное замыкание id задачи через именованный аргумент):
             combo_user = ctk.CTkComboBox(
                 task_frame,
                 values=user_options,
                 width=160,
                 height=24,
-                command=lambda val, t_id=task.id: self.on_user_combobox_change(t_id, val)
+                command=lambda val, current_id=task.id: self.on_user_combobox_change(task_id=current_id, selected_value=val)
             )
+
             if task.assignee:
                 combo_user.set(f"{task.assignee.id}: {task.assignee.fullname[:15]}")
             else:
@@ -305,13 +308,16 @@ class TaskTrackerGUI(ctk.CTk):  # type: ignore[misc]
             allowed_next: List[TaskStatus] = ALLOWED_TRANSITIONS.get(task.status, [])
             combo_values = [task.status.value] + [status.value for status in allowed_next]
 
+            # Было: command=lambda val, t_id=task.id: self.on_status_combobox_change(t_id, val)
+            # Стало (Явное и безопасное замыкание id задачи через именованный аргумент):
             combo_status = ctk.CTkComboBox(
                 task_frame,
                 values=combo_values,
                 width=140,
                 height=24,
-                command=lambda val, t_id=task.id: self.on_status_combobox_change(t_id, val)
+                command=lambda val, current_id=task.id: self.on_status_combobox_change(task_id=current_id, selected_value=val)
             )
+
             combo_status.set(task.status.value)
             combo_status.pack(side="right", padx=10, pady=13)
 
@@ -321,10 +327,20 @@ class TaskTrackerGUI(ctk.CTk):  # type: ignore[misc]
         session.close()
 
     def on_user_combobox_change(self, task_id: int, selected_value: str) -> None:
-        """Обработчик динамического изменения исполнителя через выпадающий список."""
+        """Обработчик изменения исполнителя с защитой от ложных триггеров метода .set()."""
         session = SessionLocal()
         task = session.get(Task, task_id)
         if not task:
+            session.close()
+            return
+
+        # 🔥 ЗАЩИТА: Формируем текущую строку, которая сейчас записана в базе данных
+        current_db_value = "Не назначен"
+        if task.assignee:
+            current_db_value = f"{task.assignee.id}: {task.assignee.fullname[:15]}"
+
+        # Если новое выбранное значение совпадает с тем, что уже есть в БД — это автовызов, игнорируем!
+        if selected_value == current_db_value:
             session.close()
             return
 
@@ -332,8 +348,8 @@ class TaskTrackerGUI(ctk.CTk):  # type: ignore[misc]
             if selected_value == "Не назначен":
                 if task.status == TaskStatus.IN_PROGRESS:
                     self.show_msg("Ошибка: Нельзя убрать исполнителя у задачи в In Progress!", "red")
-                    self.refresh_backlog_view()
                     session.close()
+                    self.refresh_backlog_view()
                     return
                 task.assignee_id = None
                 self.show_msg(f"С задачи #{task_id} снят исполнитель", "green")
@@ -350,13 +366,14 @@ class TaskTrackerGUI(ctk.CTk):  # type: ignore[misc]
             self.refresh_backlog_view()
 
     def on_status_combobox_change(self, task_id: int, selected_value: str) -> None:
-        """Обработчик изменения статуса задачи с жесткой валидацией assignee_id."""
+        """Обработчик изменения статуса задачи с защитой от автовызова метода .set()."""
         session = SessionLocal()
         task = session.get(Task, task_id)
         if not task:
             session.close()
             return
 
+        # 🔥 ЗАЩИТА: Если выбранный статус совпадает с текущим в БД — игнорируем автовызов!
         if task.status.value == selected_value:
             session.close()
             return
@@ -372,15 +389,15 @@ class TaskTrackerGUI(ctk.CTk):  # type: ignore[misc]
             return
 
         try:
-            # 🔥 ОБНОВЛЕННАЯ ЛОГИКА: жесткая блокировка в UI без автоназначений
+            # Ограничение бизнес-логики: проверка исполнителя
             if target_status == TaskStatus.IN_PROGRESS and not task.assignee_id:
                 self.show_msg("Запрещено: Нельзя перевести в In Progress без исполнителя!", "red")
                 session.close()
-                self.refresh_backlog_view()  # Сбрасываем выбранное значение обратно
+                self.refresh_backlog_view()
                 return
 
             old_status = task.status
-            # Вызов строгой валидации конечного автомата из ядра models.py
+            # Валидация через конечный автомат в models.py
             task.move_to_status(target_status)
 
             log = TaskLog(task_id=task.id, old_status=old_status, new_status=target_status)
